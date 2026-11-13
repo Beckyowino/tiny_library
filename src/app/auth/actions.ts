@@ -20,6 +20,35 @@ function getCredentials(formData: FormData) {
   return { email, password };
 }
 
+function getSiteUrl() {
+  const configuredUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+  const vercelHost =
+    process.env.VERCEL_ENV === "production"
+      ? process.env.VERCEL_PROJECT_PRODUCTION_URL
+      : process.env.VERCEL_URL;
+  const fallbackUrl = vercelHost ? `https://${vercelHost}` : undefined;
+
+  if (configuredUrl) {
+    try {
+      const url = new URL(configuredUrl);
+      const isLocalhost =
+        url.hostname === "localhost" || url.hostname === "127.0.0.1";
+
+      if (process.env.VERCEL && isLocalhost) {
+        return fallbackUrl;
+      }
+
+      if (url.protocol === "https:" || isLocalhost) {
+        return url.origin;
+      }
+    } catch {
+      return fallbackUrl;
+    }
+  }
+
+  return fallbackUrl;
+}
+
 export async function signIn(
   _previousState: AuthFormState,
   formData: FormData,
@@ -42,9 +71,12 @@ export async function signUp(
   const credentials = getCredentials(formData);
   if ("error" in credentials) return credentials;
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  const siteUrl = getSiteUrl();
   if (!siteUrl) {
-    return { error: "Set NEXT_PUBLIC_SITE_URL in your environment first." };
+    return {
+      error:
+        "Set NEXT_PUBLIC_SITE_URL or configure the Vercel deployment URL before signing up.",
+    };
   }
 
   const displayName = String(formData.get("displayName") ?? "").trim();

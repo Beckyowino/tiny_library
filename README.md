@@ -3,12 +3,12 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 ## Supabase setup
 
 1. Copy `.env.example` to `.env.local`.
-2. In your Supabase project's **Settings → API**, set `NEXT_PUBLIC_SUPABASE_URL` to the project URL and `NEXT_PUBLIC_SUPABASE_ANON_KEY` to its publishable (or legacy anon) key.
-3. Set `NEXT_PUBLIC_SITE_URL` to `http://localhost:3000` for local development.
+2. In your Supabase project's **Settings → API**, set `NEXT_PUBLIC_SUPABASE_URL` to the project URL and either `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` to the publishable key or `NEXT_PUBLIC_SUPABASE_ANON_KEY` to the legacy anon key.
+3. Set `NEXT_PUBLIC_SITE_URL` to `http://localhost:3000` for local development. In Vercel, set it for Production to `https://tiny-library-three.vercel.app` (or your production domain). For Preview deployments, set it to the preview hostname if you want confirmation links to return to that preview; otherwise sign-up links use Vercel's production or deployment URL fallback.
 4. In Supabase **Authentication → URL Configuration**, set the Site URL to `http://localhost:3000` and add `http://localhost:3000/auth/callback` as a Redirect URL.
 5. Start the app and use **SIGN IN** in the navigation to create an account or sign in. Email confirmation must be enabled/disabled as desired in Supabase Auth settings.
 
-For production, set the environment variables to the deployed app's values and add its `/auth/callback` URL to Supabase's allowed Redirect URLs.
+For production, set the environment variables to the deployed app's values and add its `/auth/callback` URL to Supabase's allowed Redirect URLs. If deploying to Vercel, redeploy after changing environment variables or code. Next.js deployment ID version-skew protection is enabled so pages cached from an older deployment can refresh before invoking its server actions.
 
 ## Loan reminder emails with Google Apps Script
 
