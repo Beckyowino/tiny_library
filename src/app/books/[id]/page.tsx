@@ -3,6 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Navbar from "../../components/Navbar";
 import { getBookById } from "../../lib/books";
+import { createClient } from "../../lib/supabase/server";
+import BorrowButton from "../../loans/BorrowButton";
 
 export default async function BookPage({
   params,
@@ -13,6 +15,23 @@ export default async function BookPage({
   const book = getBookById(id);
 
   if (!book) notFound();
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const { data: availabilityData, error: availabilityError } =
+    await supabase.rpc("get_book_availability", { p_book_id: book.id });
+
+  if (availabilityError) {
+    throw new Error(
+      `Could not check book availability: ${availabilityError.message}`,
+    );
+  }
+
+  const availability = Array.isArray(availabilityData)
+    ? availabilityData[0]
+    : availabilityData;
 
   return (
     <div className="min-h-dvh">
@@ -53,6 +72,12 @@ export default async function BookPage({
               year: "numeric",
             })}
           </p>
+          <BorrowButton
+            bookId={book.id}
+            authenticated={Boolean(user)}
+            available={Boolean(availability?.available_copies)}
+            alreadyBorrowed={Boolean(user && availability?.already_borrowed)}
+          />
         </section>
       </main>
     </div>
